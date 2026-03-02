@@ -13,7 +13,6 @@ repository = "https://github.com/Tools-cx-app/thread-opt/"
 
 [dependencies]
 anyhow = "1.0.102"
-env_logger = "0.11.9"
 java-properties = "2.0.0"
 libc = "0.2.182"
 log = "0.4.29"
@@ -25,3 +24,9 @@ anyhow = "1.0.102"
 toml = "1.0.3"
 serde_json = "1.0.148"
 serde = { version = "1.0.228", features = ["derive"] }
+
+[target.'cfg(not(target_os = "android"))'.dependencies]
+env_logger = "0.11.9"
+
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger = "0.15.1"

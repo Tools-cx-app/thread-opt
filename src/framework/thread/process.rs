@@ -50,7 +50,7 @@ where
 pub fn apply_cpus_to_process(pid: i32, cpus: Vec<u8>) -> Result<()> {
     unsafe {
         let mut cpuset: libc::cpu_set_t = mem::zeroed();
-        for cpu in cpus {
+        for cpu in cpus.clone() {
             libc::CPU_SET(cpu as usize, &mut cpuset);
         }
 
@@ -60,6 +60,11 @@ pub fn apply_cpus_to_process(pid: i32, cpus: Vec<u8>) -> Result<()> {
             return Err(error::Error::SchedSetaffinity(std::io::Error::last_os_error()).into());
         }
     }
+
+    log::info!(
+        "apply cpu {cpus:?} to {} successful.",
+        get_process_name(pid)?
+    );
 
     write_cache_applied(pid);
 

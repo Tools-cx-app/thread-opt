@@ -8,6 +8,8 @@ use anyhow::Result;
 use crate::{defs, framework::config::data::Data};
 
 pub fn parse_prop() -> Result<HashSet<Data>> {
+    log::debug!("Starting parse config");
+
     let f = File::open(&defs::CONFIG_PATH)?;
     let prop = java_properties::read(BufReader::new(f))?;
     let mut map = HashSet::new();
@@ -29,5 +31,6 @@ pub fn parse_prop() -> Result<HashSet<Data>> {
         map.insert(data);
     }
 
+    log::debug!("parse config was done");
     Ok(map)
 }

@@ -8,6 +8,7 @@ pub fn collect_pids() -> Result<()> {
     std::thread::Builder::new()
         .name("Pids-Collect".to_string())
         .spawn(|| {
+            log::debug!("Pids-Collect thread starting");
             collect_pid().unwrap();
         })?;
 
