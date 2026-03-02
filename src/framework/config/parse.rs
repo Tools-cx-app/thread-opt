@@ -12,7 +12,7 @@ where
     let Some(pos_end) = k.find('}') else {
         return Err(anyhow!("Missing character '{'".to_string()));
     };
-    let process = k.get(pos_head..pos_end).unwrap();
+    let process = k.get(pos_head + 1..pos_end).unwrap();
     let package = k.get(..pos_head).unwrap();
 
     Ok((process.to_string(), package.to_string()))
