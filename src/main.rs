@@ -1,5 +1,6 @@
 mod defs;
 mod framework;
+mod misc;
 
 use anyhow::Result;
 
@@ -33,6 +34,7 @@ fn init_logger() {
 }
 
 fn main() -> Result<()> {
+    misc::pre_start()?;
     let config = framework::config::parse_prop()?;
 
     init_logger();
