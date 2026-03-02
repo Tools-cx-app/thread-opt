@@ -57,10 +57,6 @@ jobs:
           sudo apt update
           sudo apt install -y gcc-multilib
           cargo install cargo-ndk --locked
-      - name: Setup Webui deps
-        run: |
-          cd webui/
-          pnpm install --frozen-lockfile
       - name: Build
         run: |
           export ANDROID_NDK_HOME=$(realpath ~/ndk_temp)
