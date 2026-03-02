@@ -11,6 +11,10 @@ use anyhow::Result;
 use crate::defs;
 
 pub fn pre_start() -> Result<()> {
+    std::panic::set_hook(Box::new(|p| {
+        log::error!("panic info: {}", p.to_string());
+    }));
+
     let processes = procfs::process::all_processes()?;
     let scene_cpuset = Path::new(defs::SCENE_CPUSET);
 
