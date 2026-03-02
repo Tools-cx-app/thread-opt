@@ -1,7 +1,15 @@
+[workspace]
+members = ["xtask"]
+
 [package]
 name = "thread-opt"
 version = "0.1.0"
 edition = "2024"
+description = "A thread optimization tool."
+authors = ["Tools-cx-app"]
+license = "GPL-3.0"
+readme = "README.md"
+repository = "https://github.com/Tools-cx-app/thread-opt/"
 
 [dependencies]
 anyhow = "1.0.102"
@@ -11,3 +19,9 @@ libc = "0.2.182"
 log = "0.4.29"
 procfs = "0.18.0"
 thiserror = "2.0.18"
+
+[build-dependencies]
+anyhow = "1.0.102"
+toml = "1.0.3"
+serde_json = "1.0.148"
+serde = { version = "1.0.228", features = ["derive"] }
