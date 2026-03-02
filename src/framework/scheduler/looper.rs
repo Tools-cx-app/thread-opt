@@ -25,6 +25,8 @@ impl Looper {
                     thread::process::apply_cpus_to_process(pid, data.cpus.clone())?;
                 }
             }
+
+            std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
 }
