@@ -1,6 +1,55 @@
-use std::{collections::HashSet, fs, path::Path};
+use std::{collections::HashSet, fs, path::Path, sync::mpsc::Sender};
 
 use anyhow::{Result, anyhow};
+use inotify::{Inotify, WatchMask};
+
+use crate::framework::config::data::Data;
+
+pub fn wait_and_read<P>(p: P, sx: &Sender<HashSet<Data>>) -> Result<()>
+where
+    P: AsRef<Path>,
+{
+    loop {
+        let prop = parse_prop(p.as_ref())?;
+        let mut map = HashSet::new();
+
+        for (k, v) in prop {
+            let mut data = Data::default();
+
+            if k.contains('{') || k.contains('}') {
+                let (process, package) = parse_process(k.clone())?;
+
+                data.process = Some(process);
+                data.package = package;
+            } else {
+                data.package = k;
+            }
+
+            data.cpus = parse_cpus(v.to_string());
+
+            map.insert(data);
+        }
+        let _ = sx.send(map);
+
+        wait_until_update(p.as_ref())?;
+    }
+}
+
+fn wait_until_update<P>(p: P) -> Result<()>
+where
+    P: AsRef<Path>,
+{
+    let mut inotify = Inotify::init()?;
+
+    inotify
+        .watches()
+        .add(p.as_ref(), WatchMask::MODIFY | WatchMask::CLOSE_WRITE)?;
+
+    let mut buffer = [0; 1024];
+    inotify.read_events_blocking(&mut buffer)?;
+
+    Ok(())
+}
 
 pub fn parse_prop<P>(p: P) -> Result<HashSet<(String, String)>>
 where

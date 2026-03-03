@@ -1,13 +1,44 @@
 pub mod data;
+mod inner;
 mod parse;
 
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::mpsc, thread};
 
 use anyhow::Result;
 
-use crate::{defs, framework::config::data::Data};
+use crate::{
+    defs,
+    framework::config::{data::Data, inner::Inner},
+};
 
-pub fn parse_prop() -> Result<HashSet<Data>> {
+#[derive(Debug)]
+pub struct Config {
+    inner: Inner,
+}
+
+impl Config {
+    pub fn new() -> Result<Self> {
+        let (sx, rx) = mpsc::channel();
+        let prop = parse_prop()?;
+        let inner = Inner::new(rx, prop);
+
+        thread::Builder::new()
+            .name("ConfigThread".into())
+            .spawn(move || {
+                parse::wait_and_read(defs::CONFIG_PATH, &sx)
+                    .unwrap_or_else(|e| log::error!("{e:#?}"));
+                panic!("An unrecoverable error occurred!");
+            })?;
+
+        Ok(Self { inner })
+    }
+
+    pub fn data(&mut self) -> &mut HashSet<Data> {
+        self.inner.config()
+    }
+}
+
+fn parse_prop() -> Result<HashSet<Data>> {
     log::debug!("Starting parse config");
 
     let prop = parse::parse_prop(defs::CONFIG_PATH)?;

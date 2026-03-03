@@ -1,23 +1,25 @@
-use std::collections::HashSet;
 
 use anyhow::Result;
 
-use crate::framework::{config::data::Data, thread};
+use crate::framework::{
+    config::Config,
+    thread,
+};
 
 pub struct Looper {
-    config: HashSet<Data>,
+    config: Config,
 }
 
 impl Looper {
-    pub fn new(c: HashSet<Data>) -> Self {
+    pub fn new(c: Config) -> Self {
         Self { config: c }
     }
 
-    pub fn enter_looper(&self) -> Result<()> {
+    pub fn enter_looper(&mut self) -> Result<()> {
         thread::collect_pids()?;
 
         loop {
-            for data in self.config.clone() {
+            for data in self.config.data().clone() {
                 let pid = thread::process::get_pid(data.package.clone(), data.process.clone())?;
                 let appyied_pid = thread::cache::read_cache_applied();
 
