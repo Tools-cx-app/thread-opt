@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     fs::File,
-    io::{BufReader, BufWriter},
+    io::{BufReader, BufWriter, Read, Write},
     path::Path,
     process::Command,
 };
@@ -29,15 +29,18 @@ pub fn pre_start() -> Result<()> {
     }
 
     if scene_cpuset.exists() {
-        let f = File::options().read(true).write(true).open(scene_cpuset)?;
-        let prop = java_properties::read(BufReader::new(&f))?;
-        let map: HashMap<String, String> = prop
-            .into_iter()
-            .filter(|(_, v)| v == "1")
-            .map(|(k, _)| (k, "0".to_string()))
+        let mut f = File::options().read(true).write(true).open(scene_cpuset)?;
+        let mut buf = String::new();
+        f.read_to_string(&mut buf)?;
+        
+        let map: HashMap<String, String> = buf
+            .lines()
+            .map(|s| s.split_once('=').unwrap())
+            .map(|(k, _)| (k.to_string(), "0".to_string()))
             .collect();
+        let map: String = map.iter().map(|(k, v)| format!("{k}={v}")).collect();
 
-        java_properties::write(BufWriter::new(&f), &map)?;
+        f.write_all(&map.as_bytes())?;
     }
 
     Ok(())
