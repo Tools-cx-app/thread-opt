@@ -25,10 +25,9 @@ fn collect_pid() -> Result<()> {
 
         for process in processes.flatten() {
             if cache_applied_pids.iter().any(|s| s != &process.pid) {
-                let pos = cache_applied_pids
-                    .iter()
-                    .position(|x| x == &process.pid)
-                    .unwrap();
+                let Some(pos) = cache_applied_pids.iter().position(|x| x == &process.pid) else {
+                    continue;
+                };
                 cache_applied_pids.remove(pos);
             }
 
