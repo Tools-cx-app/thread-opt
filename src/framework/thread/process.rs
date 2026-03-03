@@ -28,7 +28,8 @@ where
                 let common = Path::new("/proc")
                     .join(process.pid.to_string())
                     .join("task")
-                    .join(t.pid.to_string());
+                    .join(t.pid.to_string())
+                    .join("comm");
                 let common = fs::read_to_string(common).unwrap();
                 if common.trim_matches(['\0']).trim() == task {
                     return Ok(t.pid);
