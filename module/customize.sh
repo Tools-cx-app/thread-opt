@@ -10,4 +10,6 @@ if [ ! -f "/data/adb/thread-opt/config.prop" ]; then
   echo "" >/data/adb/thread-opt/config.prop
 fi
 
+ui_print " - Configuration file in /data/adb/thread-opt/config.prop"
+
 ui_print "- Installation complete"
