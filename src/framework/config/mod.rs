@@ -1,66 +1,85 @@
 pub mod data;
-mod inner;
 mod parse;
 
-use std::{collections::HashSet, sync::mpsc, thread};
-
-use anyhow::Result;
-
-use crate::{
-    defs,
-    framework::config::{data::Data, inner::Inner},
+use std::{
+    collections::HashSet,
+    path::Path,
+    sync::{LazyLock, Mutex},
 };
 
-#[derive(Debug)]
-pub struct Config {
-    inner: Inner,
-}
+use anyhow::Result;
+use inotify::{Inotify, WatchMask};
+
+use crate::{defs, framework::config::data::Data};
+
+static PROP: LazyLock<Mutex<HashSet<Data>>> = LazyLock::new(|| Mutex::new(HashSet::new()));
+
+#[derive(Clone)]
+pub struct Config;
 
 impl Config {
     pub fn new() -> Result<Self> {
-        let (sx, rx) = mpsc::channel();
-        let prop = parse_prop()?;
-        let inner = Inner::new(rx, prop);
-
-        thread::Builder::new()
-            .name("ConfigThread".into())
-            .spawn(move || {
-                parse::wait_and_read(defs::CONFIG_PATH, &sx)
-                    .unwrap_or_else(|e| log::error!("{e:#?}"));
+        std::thread::Builder::new()
+            .name("ConfigWatcher".to_string())
+            .spawn(|| {
+                log::debug!("Config Watcher thread starting");
+                parser().unwrap_or_else(|e| log::error!("{e:#?}"));
                 panic!("An unrecoverable error occurred!");
             })?;
 
-        Ok(Self { inner })
+        Ok(Self)
     }
 
-    pub fn data(&mut self) -> &mut HashSet<Data> {
-        self.inner.config()
+    pub fn config(&self) -> Result<HashSet<Data>> {
+        let prop = PROP.lock().unwrap().clone();
+
+        Ok(prop)
     }
 }
 
-fn parse_prop() -> Result<HashSet<Data>> {
-    log::debug!("Starting parse config");
+fn parser() -> Result<()> {
+    loop {
+        let prop = parse::parse_prop(defs::CONFIG_PATH)?;
+        let mut map = HashSet::new();
 
-    let prop = parse::parse_prop(defs::CONFIG_PATH)?;
-    let mut map = HashSet::new();
+        for (k, v) in prop {
+            let mut data = Data::default();
 
-    for (k, v) in prop {
-        let mut data = Data::default();
+            if k.contains('{') || k.contains('}') {
+                let (process, package) = parse::parse_process(k.clone())?;
 
-        if k.contains('{') || k.contains('}') {
-            let (process, package) = parse::parse_process(k.clone())?;
+                data.process = Some(process);
+                data.package = package;
+            } else {
+                data.package = k;
+            }
 
-            data.process = Some(process);
-            data.package = package;
-        } else {
-            data.package = k;
+            data.cpus = parse::parse_cpus(v.to_string());
+
+            map.insert(data);
         }
 
-        data.cpus = parse::parse_cpus(v.to_string());
+        {
+            let mut locker = PROP.lock().unwrap();
+            locker.extend(map);
+        }
 
-        map.insert(data);
+        wait_until_update(defs::CONFIG_PATH)?;
     }
+}
 
-    log::debug!("parse config was done");
-    Ok(map)
+fn wait_until_update<P>(p: P) -> Result<()>
+where
+    P: AsRef<Path>,
+{
+    let mut inotify = Inotify::init()?;
+
+    inotify
+        .watches()
+        .add(p.as_ref(), WatchMask::MODIFY | WatchMask::CLOSE_WRITE)?;
+
+    let mut buffer = [0; 1024];
+    inotify.read_events_blocking(&mut buffer)?;
+
+    Ok(())
 }

@@ -1,4 +1,3 @@
-
 use anyhow::Result;
 
 use crate::framework::config::Config;
@@ -21,7 +20,6 @@ impl Sched {
     }
 
     pub fn start(self) -> Result<()> {
-        let config = self.config.unwrap();
-        looper::Looper::new(config).enter_looper()
+        looper::Looper::new(self.config.unwrap().clone()).enter_looper()
     }
 }

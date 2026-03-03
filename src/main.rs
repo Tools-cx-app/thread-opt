@@ -35,10 +35,9 @@ fn init_logger() {
 
 fn main() -> Result<()> {
     misc::pre_start()?;
+    let config = framework::config::Config::new()?;
 
     init_logger();
-
-    let config = framework::config::Config::new()?;
 
     framework::scheduler::Sched::new().config(config).start()
 }

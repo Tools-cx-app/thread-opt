@@ -1,10 +1,6 @@
-
 use anyhow::Result;
 
-use crate::framework::{
-    config::Config,
-    thread,
-};
+use crate::framework::{config::Config, thread};
 
 pub struct Looper {
     config: Config,
@@ -15,11 +11,11 @@ impl Looper {
         Self { config: c }
     }
 
-    pub fn enter_looper(&mut self) -> Result<()> {
+    pub fn enter_looper(&self) -> Result<()> {
         thread::collect_pids()?;
 
         loop {
-            for data in self.config.data().clone() {
+            for data in self.config.config()? {
                 let pid = thread::process::get_pid(data.package.clone(), data.process.clone())?;
                 let appyied_pid = thread::cache::read_cache_applied();
 
