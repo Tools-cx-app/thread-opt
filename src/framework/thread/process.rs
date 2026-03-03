@@ -21,18 +21,24 @@ where
         let process = process?;
 
         if let Some(task) = task.clone() {
-            let tasks = process.tasks()?;
+            let tasks: Vec<_> = Path::new("/proc")
+                .join(process.pid.to_string())
+                .join("task")
+                .read_dir()?
+                .flatten()
+                .filter(|s| s.file_type().unwrap().is_dir())
+                .map(|s| s.file_name().to_str().unwrap().parse::<i32>().unwrap())
+                .collect();
 
             for t in tasks {
-                let t = t?;
                 let comm = Path::new("/proc")
                     .join(process.pid.to_string())
                     .join("task")
-                    .join(t.pid.to_string())
+                    .join(t.to_string())
                     .join("comm");
                 let comm = fs::read_to_string(comm).unwrap();
                 if comm.trim_matches(['\0']).trim() == task {
-                    return Ok(t.pid);
+                    return Ok(t);
                 }
             }
 
