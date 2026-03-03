@@ -32,7 +32,7 @@ pub fn pre_start() -> Result<()> {
         let mut f = File::options().read(true).write(true).open(scene_cpuset)?;
         let mut buf = String::new();
         f.read_to_string(&mut buf)?;
-        
+
         let map: HashMap<String, String> = buf
             .lines()
             .map(|s| s.split_once('=').unwrap())

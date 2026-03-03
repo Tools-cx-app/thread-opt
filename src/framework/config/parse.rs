@@ -40,13 +40,21 @@ where
     S: ToString,
 {
     let v = v.to_string();
+    let mut cpus = Vec::new();
+
     if v.contains('-') {
         let pos: Vec<&str> = v.split('-').collect();
 
         let pos_start: u8 = pos[0].parse().unwrap();
         let pos_end: u8 = pos[1].parse().unwrap();
-        (pos_start..pos_end).collect()
+        cpus = (pos_start..pos_end).collect()
+    } else if v.contains(',') {
+        let pos: Vec<&str> = v.split(',').collect();
+
+        cpus.extend(pos.iter().map(|s| s.parse::<u8>().unwrap()));
     } else {
-        vec![v.parse::<u8>().unwrap()]
+        cpus = vec![v.parse::<u8>().unwrap()]
     }
+
+    cpus
 }
