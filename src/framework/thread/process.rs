@@ -30,7 +30,7 @@ where
                     .join("task")
                     .join(t.pid.to_string());
                 let common = fs::read_to_string(common).unwrap();
-                if common.trim_matches(['\0']).trim().to_string() == task {
+                if common.trim_matches(['\0']).trim() == task {
                     return Ok(t.pid);
                 }
             }
@@ -44,7 +44,7 @@ where
         }
     }
 
-    return Err(error::Error::Pid.into());
+    Err(error::Error::Pid.into())
 }
 
 pub fn apply_cpus_to_process(pid: i32, cpus: Vec<u8>) -> Result<()> {
