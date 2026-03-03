@@ -19,6 +19,11 @@ where
 
     for process in processes {
         let process = process?;
+        let cmdline = get_process_name(process.pid)?;
+
+        if cmdline != name.to_string() {
+            continue;
+        }
 
         if let Some(task) = task.clone() {
             let tasks: Vec<_> = Path::new("/proc")
@@ -44,11 +49,7 @@ where
 
             return Err(error::Error::Pid.into());
         }
-
-        let cmdline = get_process_name(process.pid)?;
-        if cmdline == name.to_string() {
-            return Ok(process.pid);
-        }
+        return Ok(process.pid);
     }
 
     Err(error::Error::Pid.into())
