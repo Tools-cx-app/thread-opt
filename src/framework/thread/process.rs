@@ -25,13 +25,13 @@ where
 
             for t in tasks {
                 let t = t?;
-                let common = Path::new("/proc")
+                let comm = Path::new("/proc")
                     .join(process.pid.to_string())
                     .join("task")
                     .join(t.pid.to_string())
                     .join("comm");
-                let common = fs::read_to_string(common).unwrap();
-                if common.trim_matches(['\0']).trim() == task {
+                let comm = fs::read_to_string(comm).unwrap();
+                if comm.trim_matches(['\0']).trim() == task {
                     return Ok(t.pid);
                 }
             }
