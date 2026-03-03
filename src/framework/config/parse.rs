@@ -1,4 +1,21 @@
+use std::{collections::HashSet, fs, path::Path};
+
 use anyhow::{Result, anyhow};
+
+pub fn parse_prop<P>(p: P) -> Result<HashSet<(String, String)>>
+where
+    P: AsRef<Path>,
+{
+    let f = fs::read_to_string(p.as_ref())?;
+    let map: HashSet<(String, String)> = f
+        .lines()
+        .filter(|s| s.contains('='))
+        .map(|s| s.split_once('=').unwrap())
+        .map(|(k, v)| (k.trim().to_string(), v.trim().to_string()))
+        .collect();
+
+    Ok(map)
+}
 
 pub fn parse_process<S>(k: S) -> Result<(String, String)>
 where

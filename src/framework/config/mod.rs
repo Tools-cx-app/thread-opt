@@ -1,7 +1,7 @@
 pub mod data;
 mod parse;
 
-use std::{collections::HashSet, fs::File, io::BufReader};
+use std::collections::HashSet;
 
 use anyhow::Result;
 
@@ -10,8 +10,7 @@ use crate::{defs, framework::config::data::Data};
 pub fn parse_prop() -> Result<HashSet<Data>> {
     log::debug!("Starting parse config");
 
-    let f = File::open(&defs::CONFIG_PATH)?;
-    let prop = java_properties::read(BufReader::new(f))?;
+    let prop = parse::parse_prop(defs::CONFIG_PATH)?;
     let mut map = HashSet::new();
 
     for (k, v) in prop {
