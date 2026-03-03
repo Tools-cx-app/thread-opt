@@ -258,15 +258,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "encoding_rs"
-version = "0.8.35"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
-dependencies = [
- "cfg-if",
-]
-
-[[package]]
 name = "env_filter"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -509,17 +500,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "92ecc6618181def0457392ccd0ee51198e065e016d1d527a7ac1b6dc7c1f09d2"
 
 [[package]]
-name = "java-properties"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37bf6f484471c451f2b51eabd9e66b3fa7274550c5ec4b6c3d6070840945117f"
-dependencies = [
- "encoding_rs",
- "lazy_static",
- "regex",
-]
-
-[[package]]
 name = "jiff"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -562,12 +542,6 @@ dependencies = [
  "once_cell",
  "wasm-bindgen",
 ]
-
-[[package]]
-name = "lazy_static"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
 name = "leb128fmt"
@@ -964,12 +938,10 @@ dependencies = [
  "anyhow",
  "env_logger",
  "inotify",
- "java-properties",
  "libc",
  "log",
  "procfs",
  "serde",
- "serde_json",
  "thiserror",
  "toml",
 ]
