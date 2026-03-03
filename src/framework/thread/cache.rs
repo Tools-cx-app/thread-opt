@@ -10,11 +10,3 @@ pub fn write_cache_applied(pid: i32) {
 pub fn read_cache_applied() -> Vec<i32> {
     APPLIED_PID.read().unwrap().clone()
 }
-
-pub fn write_cache(pid: i32) {
-    PID.write().unwrap().push(pid);
-}
-
-pub fn read_cache() -> Vec<i32> {
-    PID.read().unwrap().clone()
-}
