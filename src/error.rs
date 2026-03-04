@@ -14,6 +14,6 @@ pub enum Error {
     SchedulerMissing(&'static str),
     #[error("Missing {0} when parseing config")]
     ConfigMissing(&'static str),
-        #[error("Missing pid when getting {0}")]
+    #[error("Missing pid when getting {0}")]
     PidMissing(String),
 }

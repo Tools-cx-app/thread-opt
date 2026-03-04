@@ -8,7 +8,8 @@ pub fn collect_pids() -> Result<()> {
         .name("Pids-Collect".to_string())
         .spawn(|| {
             log::debug!("Pids-Collect thread starting");
-            collect_pid().unwrap();
+            collect_pid().unwrap_or_else(|e| log::error!("{e:#?}"));
+            panic!("An unrecoverable error occurred!");
         })?;
 
     Ok(())
