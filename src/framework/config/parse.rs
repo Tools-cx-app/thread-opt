@@ -1,6 +1,8 @@
 use std::{collections::HashSet, fs, path::Path};
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
+
+use crate::error;
 
 pub fn parse_prop<P>(p: P) -> Result<HashSet<(String, String)>>
 where
@@ -17,17 +19,17 @@ where
     Ok(map)
 }
 
-pub fn parse_process<S>(k: S) -> Result<(String, String)>
+pub fn parse_process<S>(k: S) -> Result<(String, String), error::Error>
 where
     S: ToString,
 {
     let k = k.to_string();
 
     let Some(pos_head) = k.find('{') else {
-        return Err(anyhow!("Missing character '{'".to_string()));
+        return Err(error::Error::ConfigMissing("{"));
     };
     let Some(pos_end) = k.find('}') else {
-        return Err(anyhow!("Missing character '{'".to_string()));
+        return Err(error::Error::ConfigMissing("}"));
     };
     let process = k.get(pos_head + 1..pos_end).unwrap();
     let package = k.get(..pos_head).unwrap();

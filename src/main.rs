@@ -1,4 +1,5 @@
 mod defs;
+mod error;
 mod framework;
 mod misc;
 
@@ -33,7 +34,7 @@ fn init_logger() {
     }
 }
 
-fn main() -> Result<()> {
+fn main() -> Result<(), error::Error> {
     misc::pre_start()?;
     let config = framework::config::Config::new()?;
 

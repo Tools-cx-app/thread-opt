@@ -1,3 +1,3 @@
 pub mod config;
 pub mod scheduler;
-mod thread;
+pub mod thread;

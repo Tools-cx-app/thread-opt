@@ -1,5 +1,4 @@
 pub mod cache;
-mod error;
 pub mod process;
 
 use anyhow::Result;

@@ -8,9 +8,9 @@ use std::{
 
 use anyhow::Result;
 
-use crate::defs;
+use crate::{defs, error};
 
-pub fn pre_start() -> Result<()> {
+pub fn pre_start() -> Result<(), error::Error> {
     std::panic::set_hook(Box::new(|p| {
         log::error!("panic info: {}", p);
     }));

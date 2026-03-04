@@ -1,6 +1,9 @@
 use anyhow::Result;
 
-use crate::framework::{config::Config, thread};
+use crate::{
+    error,
+    framework::{config::Config, thread},
+};
 
 pub struct Looper {
     config: Config,
@@ -11,7 +14,7 @@ impl Looper {
         Self { config: c }
     }
 
-    pub fn enter_looper(&self) -> Result<()> {
+    pub fn enter_looper(&self) -> Result<(), error::Error> {
         thread::collect_pids()?;
 
         loop {

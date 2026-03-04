@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use crate::framework::config::Config;
+use crate::{error, framework::config::Config};
 
 mod looper;
 
@@ -19,7 +19,10 @@ impl Sched {
         self
     }
 
-    pub fn start(self) -> Result<()> {
-        looper::Looper::new(self.config.unwrap().clone()).enter_looper()
+    pub fn start(self) -> Result<(), error::Error> {
+        let config = self
+            .config
+            .ok_or(error::Error::SchedulerMissing("config"))?;
+        looper::Looper::new(config).enter_looper()
     }
 }
