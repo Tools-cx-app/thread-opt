@@ -50,12 +50,15 @@ where
         let pos_start: u8 = pos[0].parse().unwrap();
         let pos_end: u8 = pos[1].parse().unwrap();
         cpus = (pos_start..pos_end).collect()
-    } else if v.contains(',') {
+    }
+    if v.contains(',') {
         let pos: Vec<&str> = v.split(',').collect();
 
         cpus.extend(pos.iter().map(|s| s.parse::<u8>().unwrap()));
-    } else {
-        cpus = vec![v.parse::<u8>().unwrap()]
+    }
+
+    if cpus.is_empty() {
+        cpus = vec![v.parse::<u8>().unwrap()];
     }
 
     cpus
