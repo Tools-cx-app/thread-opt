@@ -19,9 +19,6 @@ fn collect_pid() -> Result<()> {
     loop {
         let processes = procfs::process::all_processes()?;
         let mut cache_applied_pids = cache::APPLIED_PID.write().unwrap();
-        let mut cache_pids = cache::PID.write().unwrap();
-
-        let mut pids = Vec::new();
 
         for process in processes.flatten() {
             if cache_applied_pids.iter().any(|s| s != &process.pid) {
@@ -30,12 +27,7 @@ fn collect_pid() -> Result<()> {
                 };
                 cache_applied_pids.remove(pos);
             }
-
-            pids.push(process.pid);
         }
-
-        cache_pids.clear();
-        cache_pids.extend(pids);
 
         std::thread::sleep(std::time::Duration::from_secs(1));
     }
