@@ -25,12 +25,8 @@ where
 {
     let k = k.to_string();
 
-    let Some(pos_head) = k.find('{') else {
-        return Err(error::Error::ConfigMissing("{"));
-    };
-    let Some(pos_end) = k.find('}') else {
-        return Err(error::Error::ConfigMissing("}"));
-    };
+    let pos_head = k.find('{').ok_or(error::Error::ConfigMissing("{"))?;
+    let pos_end = k.find('}').ok_or(error::Error::ConfigMissing("}"))?;
     let process = k.get(pos_head + 1..pos_end).unwrap();
     let package = k.get(..pos_head).unwrap();
 
