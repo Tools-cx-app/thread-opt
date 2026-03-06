@@ -35,6 +35,7 @@ pub fn pre_start() -> Result<(), error::Error> {
 
         let map: HashMap<String, String> = buf
             .lines()
+            .filter(|s| s.contains('='))
             .map(|s| s.split_once('=').unwrap())
             .map(|(k, _)| (k.to_string(), "0".to_string()))
             .collect();
