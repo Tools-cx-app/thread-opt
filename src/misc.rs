@@ -1,14 +1,41 @@
 use std::{
     collections::HashMap,
-    fs::File,
+    fs::{self, File, Permissions},
     io::{Read, Write},
+    os::unix::fs::{PermissionsExt, chown},
     path::Path,
-    process::Command,
+    process::{Command, id},
 };
 
 use anyhow::Result;
 
 use crate::{defs, error};
+
+fn lock_value<P, S>(path: P, value: S) -> Result<()>
+where
+    P: AsRef<Path>,
+    S: AsRef<str>,
+{
+    let value = value.as_ref();
+    let path = path.as_ref();
+
+    chown(path, Some(0), Some(0))?;
+
+    let mut permissions = path.metadata()?.permissions();
+    permissions.set_mode(permissions.mode() | 0o200);
+    fs::set_permissions(&path, permissions)?;
+
+    let mut f = fs::OpenOptions::new()
+        .write(true)
+        .truncate(true)
+        .open(path)?;
+    f.write_all(value.as_bytes())?;
+
+    let mut permissions = path.metadata()?.permissions();
+    permissions.set_mode(permissions.mode() & !0o222);
+    fs::set_permissions(&path, permissions)?;
+    Ok(())
+}
 
 pub fn pre_start() -> Result<(), error::Error> {
     std::panic::set_hook(Box::new(|p| {
@@ -42,6 +69,13 @@ pub fn pre_start() -> Result<(), error::Error> {
         let map: String = map.iter().map(|(k, v)| format!("{k}={v}")).collect();
 
         f.write_all(&map.as_bytes())?;
+    }
+
+    for p in glob::glob("/sys/devices/system/cpu/cpu*/core_ctl/m??_cpus")?.flatten() {
+        lock_value(p, "9")?;
+    }
+    for p in glob::glob("/sys/module/migt/parameters/*cluster")?.flatten() {
+        lock_value(p, "0")?;
     }
 
     Ok(())
