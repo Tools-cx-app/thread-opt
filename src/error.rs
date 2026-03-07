@@ -16,4 +16,6 @@ pub enum Error {
     ConfigMissing(&'static str),
     #[error("Missing pid when getting {0}")]
     PidMissing(String),
+    #[error(transparent)]
+    Glob(#[from] glob::PatternError),
 }

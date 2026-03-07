@@ -1,6 +1,7 @@
 use std::{fs, mem, path::Path};
 
 use anyhow::Result;
+use glob::Pattern;
 
 use crate::{error, framework::thread::cache::write_cache_applied};
 
@@ -42,7 +43,8 @@ where
                     .join(t.to_string())
                     .join("comm");
                 let comm = fs::read_to_string(comm).unwrap();
-                if comm.trim_matches(['\0']).trim() == task {
+                let glob_task = Pattern::new(&task)?;
+                if glob_task.matches(comm.trim_matches(['\0']).trim()) {
                     return Ok(t);
                 }
             }
