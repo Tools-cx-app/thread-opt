@@ -1,10 +1,10 @@
 use std::{
     collections::HashMap,
-    fs::{self, File, Permissions},
+    fs::{self, File},
     io::{Read, Write},
     os::unix::fs::{PermissionsExt, chown},
     path::Path,
-    process::{Command, id},
+    process::Command,
 };
 
 use anyhow::Result;

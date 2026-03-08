@@ -3,9 +3,18 @@ mod error;
 mod framework;
 mod misc;
 
+use std::fs;
+
 use anyhow::Result;
+use log::LevelFilter;
 
 fn init_logger() {
+    let level = if fs::exists(defs::TRACING).is_ok() {
+        LevelFilter::Trace
+    } else {
+        LevelFilter::Info
+    };
+
     #[cfg(not(target_os = "android"))]
     {
         use std::io::Write;
@@ -21,14 +30,14 @@ fn init_logger() {
                 record.args()
             )
         });
-        builder.filter_level(log::LevelFilter::Debug).init();
+        builder.filter_level(level).init();
     }
 
     #[cfg(target_os = "android")]
     {
         android_logger::init_once(
             android_logger::Config::default()
-                .with_max_level(log::LevelFilter::Debug)
+                .with_max_level(level)
                 .with_tag("thread-opt"),
         );
     }
