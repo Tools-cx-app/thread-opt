@@ -33,6 +33,8 @@ impl Config {
     pub fn config(&self) -> Result<HashSet<Data>> {
         let prop = PROP.lock().unwrap().clone();
 
+        log::trace!("prop: {prop:?}");
+
         Ok(prop)
     }
 }
