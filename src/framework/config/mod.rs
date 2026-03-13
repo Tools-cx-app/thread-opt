@@ -48,7 +48,10 @@ fn parser() -> Result<()> {
             let mut data = Data::default();
 
             if k.contains('{') || k.contains('}') {
-                let (process, package) = parse::parse_process(k.clone())?;
+                let Ok((process, package)) = parse::parse_process(k.clone()) else {
+                    log::error!("prop format error, {k}={v}");
+                    continue;
+                };
 
                 data.process = Some(process);
                 data.package = package;
