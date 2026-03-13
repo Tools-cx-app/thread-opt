@@ -8,8 +8,32 @@ use std::{
 };
 
 use anyhow::Result;
+use log::LevelFilter;
 
 use crate::{defs, error};
+
+fn init_logger() {
+    let level = if fs::exists(defs::TRACING).is_ok() {
+        LevelFilter::Trace
+    } else {
+        LevelFilter::Info
+    };
+
+    use std::io::Write;
+
+    let mut builder = env_logger::Builder::new();
+
+    builder.format(|buf, record| {
+        writeln!(
+            buf,
+            "[{}] [{}] {}",
+            record.level(),
+            record.target(),
+            record.args()
+        )
+    });
+    builder.filter_level(level).init();
+}
 
 fn lock_value<P, S>(path: P, value: S) -> Result<()>
 where
@@ -38,10 +62,7 @@ where
 }
 
 pub fn pre_start() -> Result<(), error::Error> {
-    std::panic::set_hook(Box::new(|p| {
-        log::error!("panic info: {}", p);
-    }));
-
+    init_logger();
     let processes = procfs::process::all_processes()?;
     let scene_cpuset = Path::new(defs::SCENE_CPUSET);
 
