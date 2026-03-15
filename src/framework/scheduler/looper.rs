@@ -1,6 +1,7 @@
 use anyhow::Result;
 
 use crate::{
+    cpuset::Cpuset,
     error,
     framework::{config::Config, thread},
 };
@@ -21,8 +22,11 @@ impl Looper {
             for data in self.config.config()? {
                 let pid = thread::process::get_pid(data.package.clone(), data.process.clone())?;
                 let appyied_pid = thread::cache::read_cache_applied();
+                let mut cpuset = Cpuset::new(0, data.cpus.clone(), pid)?;
 
                 if !appyied_pid.iter().any(|id| id == &pid) {
+                    cpuset.join_tasks(pid)?;
+
                     thread::process::apply_cpus_to_process(pid, data.cpus.clone())?;
                 }
             }

@@ -99,5 +99,26 @@ pub fn pre_start() -> Result<(), error::Error> {
         lock_value(p, "0")?;
     }
 
+    pre_cpuset()?;
+
+    Ok(())
+}
+
+fn pre_cpuset() -> Result<(), error::Error> {
+    let cpuset = Path::new(defs::CPUSET);
+    fs::create_dir_all(cpuset)?;
+
+    let present_cpus = fs::read_to_string("/sys/devices/system/cpu/present")?;
+    let mut cpus = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(cpuset.join("cpus"))?;
+    cpus.write_all(present_cpus.as_bytes())?;
+
+    let mut mems = fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(cpuset.join("mems"))?;
+    mems.write_all("0".as_bytes())?;
     Ok(())
 }

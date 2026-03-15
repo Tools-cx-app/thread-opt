@@ -1,3 +1,4 @@
+mod cpuset;
 mod defs;
 mod error;
 mod framework;
