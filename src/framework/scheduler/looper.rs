@@ -20,7 +20,11 @@ impl Looper {
 
         loop {
             for data in self.config.config()? {
-                let pid = thread::process::get_pid(data.package.clone(), data.process.clone())?;
+                let Ok(pid) = thread::process::get_pid(data.package.clone(), data.process.clone())
+                else {
+                    log::trace!("{}({:?}) not find pid", data.package, data.process);
+                    continue;
+                };
                 let appyied_pid = thread::cache::read_cache_applied();
                 let mut cpuset = Cpuset::new(0, data.cpus.clone(), pid)?;
 
