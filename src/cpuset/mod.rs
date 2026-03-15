@@ -47,4 +47,16 @@ impl Cpuset {
         f.write_all(tasks)?;
         Ok(())
     }
+
+    pub fn tasks(&self) -> Vec<i32> {
+        self.tasks.clone()
+    }
+
+    pub fn remove_tasks(&mut self, id: i32) {
+        let Some(pos) = self.tasks.iter().position(|s| s == &id) else {
+            return;
+        };
+
+        self.tasks.remove(pos);
+    }
 }
